@@ -1,2 +1,2 @@
 # Backend
-This will be the repository for the Backend of the project.
+Dieses Repository dient zur Implementierung der nötigen Backend Klassen mithilfe von Angular für unser Förderportal Programm
