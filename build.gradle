@@ -25,9 +25,19 @@ repositories {
 }
 
 dependencies {
+	// Existing dependencies...
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.postgresql:postgresql:42.7.3'
+	implementation 'org.postgresql:postgresql:42.7.3'
+
+	// Auth0 & Security
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'com.auth0:auth0-spring-security-api:1.5.3'
+
+	// Mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'

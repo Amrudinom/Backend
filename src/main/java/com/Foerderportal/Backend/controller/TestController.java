@@ -1,4 +1,4 @@
-package com.Foerderportal.Backend;
+package com.Foerderportal.Backend.controller;
 
 
 import org.springframework.web.bind.annotation.GetMapping;
