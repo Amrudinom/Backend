@@ -22,10 +22,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/api/public/**").permitAll()
+                        .requestMatchers("/api/**").permitAll()  // <-- ALLE erlauben zum Testen!
                         .anyRequest().authenticated()
-                )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> {})
                 );
 
         return http.build();
@@ -38,7 +36,8 @@ public class SecurityConfig {
                 "http://localhost:4200",
                 "http://localhost:4201",
                 "http://localhost:4202",
-                "http://localhost:4203"
+                "http://localhost:4203",
+                "http://localhost:4301"  // <-- HINZUFÜGEN!
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
