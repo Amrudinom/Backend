@@ -39,7 +39,6 @@ public class FoerderantragController {
         String auth0Id = jwt.getSubject();
         User user = userService.getUserByAuth0Id(auth0Id)
                 .orElseThrow(() -> new RuntimeException("Testuser nicht gefunden"));
-
         return ResponseEntity.ok(foerderantragService.getAntraegeByUser(user));
     }
 

@@ -34,13 +34,13 @@ public class UserController {
     public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
         String auth0Id = jwt.getSubject();
 
-        // Versuche Email und Name aus verschiedenen Claims zu holen
+
         String email = jwt.getClaimAsString("email");
         if (email == null) {
             email = jwt.getClaimAsString("https://foerderportal-api/email");
         }
         if (email == null) {
-            email = jwt.getClaimAsString("sub"); // Fallback: Nutze sub als Email
+            email = jwt.getClaimAsString("sub");
         }
 
         String name = jwt.getClaimAsString("name");
@@ -51,14 +51,8 @@ public class UserController {
             name = jwt.getClaimAsString("nickname");
         }
         if (name == null) {
-            name = "User"; // Fallback
+            name = "User";
         }
-
-        System.out.println("📌 JWT Subject: " + auth0Id);
-        System.out.println("📌 Email: " + email);
-        System.out.println("📌 Name: " + name);
-        System.out.println("📌 All Claims: " + jwt.getClaims());
-
         User user = userService.getOrCreateUserFromAuth0(auth0Id, email, name);
 
         return ResponseEntity.ok(user);
