@@ -35,9 +35,10 @@ public class FoerderantragController {
 
     @GetMapping("/my")
     public ResponseEntity<List<Foerderantrag>> getMyAntraege(@AuthenticationPrincipal Jwt jwt) {
+
         String auth0Id = jwt.getSubject();
         User user = userService.getUserByAuth0Id(auth0Id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Testuser nicht gefunden"));
 
         return ResponseEntity.ok(foerderantragService.getAntraegeByUser(user));
     }

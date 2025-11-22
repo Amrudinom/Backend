@@ -3,7 +3,9 @@ package com.Foerderportal.Backend.controller;
 import com.Foerderportal.Backend.model.User;
 import com.Foerderportal.Backend.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -28,14 +30,37 @@ public class UserController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
     @GetMapping("/me")
     public ResponseEntity<User> getCurrentUser(@AuthenticationPrincipal Jwt jwt) {
         String auth0Id = jwt.getSubject();
+
+        // Versuche Email und Name aus verschiedenen Claims zu holen
         String email = jwt.getClaimAsString("email");
+        if (email == null) {
+            email = jwt.getClaimAsString("https://foerderportal-api/email");
+        }
+        if (email == null) {
+            email = jwt.getClaimAsString("sub"); // Fallback: Nutze sub als Email
+        }
+
         String name = jwt.getClaimAsString("name");
+        if (name == null) {
+            name = jwt.getClaimAsString("https://foerderportal-api/name");
+        }
+        if (name == null) {
+            name = jwt.getClaimAsString("nickname");
+        }
+        if (name == null) {
+            name = "User"; // Fallback
+        }
+
+        System.out.println("📌 JWT Subject: " + auth0Id);
+        System.out.println("📌 Email: " + email);
+        System.out.println("📌 Name: " + name);
+        System.out.println("📌 All Claims: " + jwt.getClaims());
 
         User user = userService.getOrCreateUserFromAuth0(auth0Id, email, name);
+
         return ResponseEntity.ok(user);
     }
 

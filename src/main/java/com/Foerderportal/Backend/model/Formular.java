@@ -1,5 +1,6 @@
 package com.Foerderportal.Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
@@ -47,14 +48,17 @@ public class Formular {
     @Column(nullable = false)
     private Integer version = 1;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ersteller_von")
     private User erstellerVon;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "formular", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("anzeigeReihenfolge ASC")
     private List<Formularfeld> felder = new ArrayList<>();
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vorlage_id")
     private Formularvorlage formularvorlage;

@@ -1,12 +1,16 @@
 package com.Foerderportal.Backend.service;
 
 import com.Foerderportal.Backend.model.User;
+import com.Foerderportal.Backend.model.UserRolle;
 import com.Foerderportal.Backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,7 +84,9 @@ public class UserService {
                     newUser.setAuth0Id(auth0Id);
                     newUser.setEmail(email);
                     newUser.setName(name);
-                    return createUser(newUser);
+                    newUser.setRolle(UserRolle.ANTRAGSTELLER);
+                    newUser.setCreatedAt(LocalDateTime.now());
+                    return userRepository.save(newUser);
                 });
     }
 }
