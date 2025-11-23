@@ -50,6 +50,7 @@ dependencies {
 	// Jackson für JSON (meist schon vorhanden, aber sicherstellen)
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {

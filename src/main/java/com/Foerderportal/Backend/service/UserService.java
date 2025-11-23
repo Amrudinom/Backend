@@ -73,9 +73,9 @@ public class UserService {
         log.info("User deleted: {}", id);
     }
 
-    /**
-     * Get existing user by Auth0 ID or create new user
-     * Used for Auth0 login
+    /*
+     Get existing user by Auth0 ID or create new user
+     Used for Auth0 login
      */
     public User getOrCreateUserFromAuth0(String auth0Id, String email, String name) {
         return userRepository.findByAuth0Id(auth0Id)

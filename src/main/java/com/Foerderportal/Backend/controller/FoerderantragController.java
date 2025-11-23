@@ -57,7 +57,7 @@ public class FoerderantragController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         antrag.setAntragsteller(user);
-        Foerderantrag created = foerderantragService.createAntrag(antrag);
+        Foerderantrag created = foerderantragService.createAntrag(antrag, user.getId());
         return ResponseEntity.ok(created);
     }
 

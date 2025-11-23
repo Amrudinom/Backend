@@ -1,5 +1,6 @@
 package com.Foerderportal.Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "foerderantraege")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+
 public class Foerderantrag {
 
     @Id
@@ -27,6 +28,7 @@ public class Foerderantrag {
     @Column(nullable = false)
     private BigDecimal betrag;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User antragsteller;

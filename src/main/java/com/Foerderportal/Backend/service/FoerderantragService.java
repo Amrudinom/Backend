@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.Foerderportal.Backend.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,6 +21,7 @@ public class FoerderantragService {
 
     private final FoerderantragRepository foerderantragRepository;
     private final EmailService emailService;
+    private final UserRepository userRepository;
 
     public List<Foerderantrag> getAllAntraege() {
         return foerderantragRepository.findAll();
@@ -38,9 +40,12 @@ public class FoerderantragService {
                 .orElseThrow(() -> new RuntimeException("Foerderantrag not found: " + id));
     }
 
-    public Foerderantrag createAntrag(Foerderantrag antrag) {
+    public Foerderantrag createAntrag(Foerderantrag antrag, Long antragstellerId) {
+        User antragstellerRef = userRepository.getReferenceById(antragstellerId);
+        antrag.setAntragsteller(antragstellerRef);
         antrag.setStatus(AntragStatus.EINGEREICHT);
         antrag.setEingereichtAm(LocalDateTime.now());
+
 
         Foerderantrag saved = foerderantragRepository.save(antrag);
         log.info("Foerderantrag created: {}", saved.getId());
