@@ -45,9 +45,7 @@ public class UserController {
         }
 
         String name = jwt.getClaimAsString("name");
-        if (name == null) {
-            name = jwt.getClaimAsString("https://foerderportal-api/name");
-        }
+
         if (name == null) {
             name = jwt.getClaimAsString("nickname");
         }
