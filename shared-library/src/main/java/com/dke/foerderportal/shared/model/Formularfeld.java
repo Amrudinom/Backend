@@ -1,5 +1,6 @@
 package com.dke.foerderportal.shared.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
@@ -19,6 +20,7 @@ public class Formularfeld {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "formular_id", nullable = false)
     private Formular formular;
@@ -46,6 +48,7 @@ public class Formularfeld {
     @Column(nullable = false)
     private Integer anzeigeReihenfolge;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "felddefinition_id")
     private Felddefinition felddefinition;

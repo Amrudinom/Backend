@@ -53,8 +53,7 @@ public class Formular {
     @JoinColumn(name = "ersteller_von")
     private User erstellerVon;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "formular", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "formular", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @OrderBy("anzeigeReihenfolge ASC")
     private List<Formularfeld> felder = new ArrayList<>();
 
