@@ -1,58 +1,41 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.7'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.7' apply false
+    id 'io.spring.dependency-management' version '1.1.7' apply false
 }
 
-group = 'com.Foerderportal'
-version = '0.0.1-SNAPSHOT'
-description = 'Demo project for Spring Boot'
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
 
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
+    group = 'com.dke'
+    version = '1.0.0'
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(21)
+        }
+    }
 
-repositories {
-	mavenCentral()
-}
+    repositories {
+        mavenCentral()
+    }
 
-dependencies {
-	// Existing dependencies...
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.postgresql:postgresql:42.7.3'
+    dependencyManagement {
+        imports {
+            mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+        }
+    }
 
-	// Auth0 & Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-	implementation 'com.auth0:auth0-spring-security-api:1.5.3'
+    dependencies {
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
 
-	// Mail
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    }
 
-	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-
-	// Hypersistence Utils für JSON Support
-	implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.7.3'
-
-	// Jackson für JSON (meist schon vorhanden, aber sicherstellen)
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
 }
