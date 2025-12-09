@@ -1,9 +1,9 @@
 package com.dke.foerderportal.shared.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // <-- DIESE ZEILE HINZUFÜGEN!
 public class Dokument {
 
     @Id
@@ -28,14 +30,16 @@ public class Dokument {
     private Long fileSize;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "foerderantrag_id", nullable = false)
+    @JoinColumn(name = "foerderantrag_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // <-- AUCH HIER!
     private Foerderantrag foerderantrag;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uploaded_by")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // <-- UND HIER!
     private User uploadedBy;
 
-    @Column(name = "uploaded_at", updatable = false)
+    @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 
     @PrePersist
