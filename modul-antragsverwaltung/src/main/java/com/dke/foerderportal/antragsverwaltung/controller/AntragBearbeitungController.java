@@ -1,19 +1,25 @@
 package com.dke.foerderportal.antragsverwaltung.controller;
 
 
+import com.dke.foerderportal.shared.dto.CreateAntragRequest;
 import com.dke.foerderportal.shared.model.AntragStatus;
 import com.dke.foerderportal.shared.model.Foerderantrag;
 import com.dke.foerderportal.shared.model.User;
 import com.dke.foerderportal.shared.service.FoerderantragService;
 import com.dke.foerderportal.shared.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 @RestController
 @RequestMapping("/api/antraege-verwaltung")
@@ -70,6 +76,17 @@ public class AntragBearbeitungController {
     public ResponseEntity<Void> deleteAntrag(@PathVariable Long id) {
         foerderantragService.deleteAntrag(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<CreateAntragRequest>> filter(
+            @RequestParam(required = false) AntragStatus status,
+            @RequestParam(required = false) Long userId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME)LocalDate to
+            ){
+        List<CreateAntragRequest> result = foerderantragService.filterAntraege(status, userId, from, to);
+        return ResponseEntity.ok(result);
     }
 
 }

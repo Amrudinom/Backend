@@ -1,5 +1,6 @@
 package com.dke.foerderportal.shared.service;
 
+import com.dke.foerderportal.shared.dto.CreateAntragRequest;
 import com.dke.foerderportal.shared.model.AntragStatus;
 import com.dke.foerderportal.shared.model.Foerderantrag;
 import com.dke.foerderportal.shared.model.User;
@@ -10,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.dke.foerderportal.shared.repository.UserRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +39,7 @@ public class FoerderantragService {
     }
 
     public Foerderantrag getAntragById(Long id) {
-        return foerderantragRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Foerderantrag not found: " + id));
+        return foerderantragRepository.findById(id).orElseThrow(() -> new RuntimeException("Foerderantrag not found: " + id));
     }
 
     public Foerderantrag createAntrag(Foerderantrag antrag, Long antragstellerId) {
@@ -52,10 +54,7 @@ public class FoerderantragService {
 
         // Send email notification (don't fail if email fails)
         try {
-            emailService.sendAntragEingereichtEmail(
-                    antrag.getAntragsteller().getEmail(),
-                    antrag.getTitel()
-            );
+            emailService.sendAntragEingereichtEmail(antrag.getAntragsteller().getEmail(), antrag.getTitel());
         } catch (Exception e) {
             log.error("Failed to send email notification", e);
         }
@@ -85,10 +84,7 @@ public class FoerderantragService {
 
         // Send email notification
         try {
-            emailService.sendAntragGenehmigtEmail(
-                    antrag.getAntragsteller().getEmail(),
-                    antrag.getTitel()
-            );
+            emailService.sendAntragGenehmigtEmail(antrag.getAntragsteller().getEmail(), antrag.getTitel());
         } catch (Exception e) {
             log.error("Failed to send email notification", e);
         }
@@ -109,11 +105,7 @@ public class FoerderantragService {
 
         // Send email notification
         try {
-            emailService.sendAntragAbgelehntEmail(
-                    antrag.getAntragsteller().getEmail(),
-                    antrag.getTitel(),
-                    grund
-            );
+            emailService.sendAntragAbgelehntEmail(antrag.getAntragsteller().getEmail(), antrag.getTitel(), grund);
         } catch (Exception e) {
             log.error("Failed to send email notification", e);
         }
@@ -125,4 +117,31 @@ public class FoerderantragService {
         foerderantragRepository.deleteById(id);
         log.info("Foerderantrag deleted: {}", id);
     }
+
+    public List<CreateAntragRequest> filterAntraege(AntragStatus status, Long userId, LocalDate from, LocalDate to) {
+        List<Foerderantrag> result;
+
+        if (userId != null) {
+            if (status != null) {
+                result = foerderantragRepository.findByAntragstellerAndStatus(userRepository.getReferenceById(userId), status);
+            } else {
+                result = foerderantragRepository.findByAntragsteller_Id(userId);
+            }
+        } else {
+            if (status != null) {
+                result = foerderantragRepository.findByStatus(status);
+            } else {
+                result = foerderantragRepository.findAll();
+            }
+        }
+
+        if (from != null && to != null) {
+            LocalDateTime fromDateTime = from.atStartOfDay();
+            LocalDateTime toDateTime = to.atTime(23, 59, 59);
+            result = result.stream().filter(a -> a.getEingereichtAm() != null && !a.getEingereichtAm().isBefore(fromDateTime) && !a.getEingereichtAm().isAfter(toDateTime)).collect(Collectors.toList());
+        }
+
+        return result.stream().map(a -> new CreateAntragRequest(a.getId(), a.getTitel(), a.getBeschreibung(), a.getBetrag(), a.getStatus(), a.getEingereichtAm(), a.getAntragsteller() != null ? a.getAntragsteller().getName() : null)).collect(Collectors.toList());
+    }
+
 }
