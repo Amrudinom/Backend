@@ -36,6 +36,12 @@ public class Formular {
     @Column(columnDefinition = "jsonb")
     private JsonNode schema;
 
+    // NEU: Status als Enum (empfohlen)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FormularStatus status = FormularStatus.DRAFT;
+
+    // ALT: Für Abwärtskompatibilität (kann entfernt werden, wenn Frontend angepasst)
     @Column(nullable = false)
     private Boolean istVeroeffentlicht = false;
 
@@ -66,11 +72,23 @@ public class Formular {
     protected void onCreate() {
         erstelltAm = LocalDateTime.now();
         aktualisiertAm = LocalDateTime.now();
+        // Synchronisiere Boolean mit Enum
+        if (status == FormularStatus.PUBLISHED) {
+            istVeroeffentlicht = true;
+        } else {
+            istVeroeffentlicht = false;
+        }
     }
 
     @PreUpdate
     protected void onUpdate() {
         aktualisiertAm = LocalDateTime.now();
+        // Synchronisiere Boolean mit Enum
+        if (status == FormularStatus.PUBLISHED) {
+            istVeroeffentlicht = true;
+        } else {
+            istVeroeffentlicht = false;
+        }
     }
 
     public void addFeld(Formularfeld feld) {

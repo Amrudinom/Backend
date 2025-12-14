@@ -25,6 +25,14 @@ public class FormularVerwaltungController {
     public ResponseEntity<List<Formular>> getAllFormulare() {
         return ResponseEntity.ok(formularService.getAllFormulare());
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<Formular> getFormularById(@PathVariable Long id) {
+        Formular formular = formularService.getFormularById(id);
+        if (formular == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(formular);
+    }
 
     @PostMapping
     public ResponseEntity<Formular> createFormular(
@@ -59,6 +67,13 @@ public class FormularVerwaltungController {
         Formular formular = formularService.zurueckziehenFormular(id);
         return ResponseEntity.ok(formular);
     }
+
+    @PostMapping("/{id}/archivieren")
+    public ResponseEntity<Formular> archivierenFormular(@PathVariable Long id) {
+        Formular formular = formularService.archivierenFormular(id);
+        return ResponseEntity.ok(formular);
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFormular(@PathVariable Long id) {

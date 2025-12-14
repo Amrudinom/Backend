@@ -3,6 +3,8 @@ package com.dke.foerderportal.shared.repository;
 import com.dke.foerderportal.shared.model.Formular;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -16,4 +18,11 @@ public interface FormularRepository extends JpaRepository<Formular, Long> {
     List<Formular> findByIstVeroeffentlichtTrue();
     List<Formular> findByKategorie(String kategorie);
     List<Formular> findByIstVeroeffentlichtTrueAndKategorie(String kategorie);
+
+    @Query("SELECT DISTINCT f FROM Formular f LEFT JOIN FETCH f.felder WHERE f.id = :id")
+    Optional<Formular> findByIdWithFelder(@Param("id") Long id);
+
+    // Lade alle Formulare MIT Feldern
+    @Query("SELECT DISTINCT f FROM Formular f LEFT JOIN FETCH f.felder ORDER BY f.erstelltAm DESC")
+    List<Formular> findAllWithFelder();
 }

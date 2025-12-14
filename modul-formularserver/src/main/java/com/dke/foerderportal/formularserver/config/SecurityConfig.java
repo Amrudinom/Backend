@@ -25,8 +25,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Actuator Endpoints freigeben
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/info").permitAll()
+                        // Wurzel und öffentliche Endpoints
                         .requestMatchers("/").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
+                        // Test-Endpoints (für Debugging)
+                        .requestMatchers("/api/test/**").permitAll()
+                        // Alle anderen API-Endpoints benötigen Authentifizierung
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
