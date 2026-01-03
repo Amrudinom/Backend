@@ -46,11 +46,11 @@ public class Formularfeld {
     private boolean pflichtfeld;
 
     // OAuth Auto-Fill
-    @Column(nullable = false)
+    @Column(name = "oauth_auto_fill", nullable = false)
     @JsonProperty("oauthAutoFill")  // Frontend sendet "oauthAutoFill"
     private Boolean oauthAutoFill = false;
 
-    @Column(nullable = false)
+    @Column(name = "oauth_Field_Mapping", nullable = false)
     @JsonProperty("oauthFieldMapping")  // Frontend sendet "oauthFieldMapping"
     private String oauthFieldMapping = "";
 

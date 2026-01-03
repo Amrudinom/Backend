@@ -35,9 +35,6 @@ public class UserController {
         if (name == null) {
             name = jwt.getClaimAsString("nickname");
         }
-        if (name == null) {
-            name = "User";
-        }
         User user = userService.getOrCreateUserFromAuth0(auth0Id, email, name);
 
         return ResponseEntity.ok(user);
