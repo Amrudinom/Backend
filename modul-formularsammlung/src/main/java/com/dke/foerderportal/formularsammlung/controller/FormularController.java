@@ -6,6 +6,7 @@ import com.dke.foerderportal.shared.model.Formular;
 import com.dke.foerderportal.shared.model.User;
 import com.dke.foerderportal.shared.service.FoerderantragService;
 import com.dke.foerderportal.shared.service.FormularService;
+import com.dke.foerderportal.shared.service.FormularSnapshotBuilder;
 import com.dke.foerderportal.shared.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,7 @@ public class FormularController {
     private final FormularService formularService;
     private final FoerderantragService foerderantragService;
     private final UserService userService;
+    private final FormularSnapshotBuilder snapshotBuilder;
 
     @GetMapping  // Alle veröffentlichten Formulare anzeigen
     public List<Formular> alleFormulare() {
@@ -51,12 +53,20 @@ public class FormularController {
         Formular formular = formularService.getFormularById(request.getFormularId());
 
         Foerderantrag antrag = new Foerderantrag();
-        antrag.setTitel(request.getTitel());
-        antrag.setBeschreibung(request.getBeschreibung());
-        antrag.setBetrag(request.getBetrag());
+        antrag.setAntragsteller(user);
+
+        // Legacy-Anzeigedaten (damit Listen weiterhin gut aussehen)
+        antrag.setTitel(formular.getTitel());
+        antrag.setBeschreibung(formular.getBeschreibung());
+        antrag.setBetrag(request.getBetrag() != null ? request.getBetrag() : BigDecimal.ZERO);
+
+        // NEU: Snapshot + Antworten
+        antrag.setFormularId(formular.getId());
+        antrag.setFormularVersion(formular.getVersion());
+        antrag.setFormularSnapshot(snapshotBuilder.buildSnapshot(formular));
+        antrag.setFormularAntworten(snapshotBuilder.answersToJson(request.getAntworten()));
 
         Foerderantrag created = foerderantragService.createAntrag(antrag, user.getId());
-
         return ResponseEntity.ok(created);
     }
 

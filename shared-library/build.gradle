@@ -11,4 +11,5 @@ dependencies {
     api 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     api 'io.hypersistence:hypersistence-utils-hibernate-63:3.7.3'
     api 'org.springframework.boot:spring-boot-starter-mail'
+
 }

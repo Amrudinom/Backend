@@ -1,10 +1,13 @@
 package com.dke.foerderportal.antragsverwaltung.controller;
 
 
+import com.dke.foerderportal.antragsverwaltung.dto.FoerderantragListDto;
+import com.dke.foerderportal.shared.dto.AntragFormularViewDto;
 import com.dke.foerderportal.shared.dto.CreateAntragRequest;
 import com.dke.foerderportal.shared.model.AntragStatus;
 import com.dke.foerderportal.shared.model.Foerderantrag;
 import com.dke.foerderportal.shared.model.User;
+import com.dke.foerderportal.shared.service.AntragFormularViewService;
 import com.dke.foerderportal.shared.service.FoerderantragService;
 import com.dke.foerderportal.shared.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +18,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -27,11 +29,25 @@ import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME
 public class AntragBearbeitungController {
     private final FoerderantragService foerderantragService;
     private final UserService userService;
+    private final AntragFormularViewService antragFormularViewService;
 
     @GetMapping
-    public ResponseEntity<List<Foerderantrag>> getAllAntraege() {
-        return ResponseEntity.ok(foerderantragService.getAllAntraege());
+    public ResponseEntity<List<FoerderantragListDto>> getAllAntraege() {
+        return ResponseEntity.ok(
+                foerderantragService.getAllAntraege().stream()
+                        .map(a -> new FoerderantragListDto(
+                                a.getId(),
+                                a.getTitel(),
+                                a.getBeschreibung(),
+                                a.getBetrag(),
+                                a.getStatus(),
+                                a.getEingereichtAm(),
+                                a.getAblehnungsgrund()
+                        ))
+                        .toList()
+        );
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Foerderantrag> getAntragById(@PathVariable Long id) {
@@ -88,5 +104,12 @@ public class AntragBearbeitungController {
         List<CreateAntragRequest> result = foerderantragService.filterAntraege(status, userId, from, to);
         return ResponseEntity.ok(result);
     }
+    @GetMapping("/{id}/formular")
+    public ResponseEntity<AntragFormularViewDto> getFormular(@PathVariable Long id) {
+        return ResponseEntity.ok(antragFormularViewService.getFormularView(id));
+    }
+
+
+
 
 }

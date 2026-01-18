@@ -1,10 +1,12 @@
 package com.dke.foerderportal.shared.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -12,7 +14,6 @@ import java.time.LocalDateTime;
 @Table(name = "foerderantraege")
 @Data
 @NoArgsConstructor
-
 public class Foerderantrag {
 
     @Id
@@ -28,7 +29,6 @@ public class Foerderantrag {
     @Column(nullable = false)
     private BigDecimal betrag;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User antragsteller;
@@ -55,6 +55,21 @@ public class Foerderantrag {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    //Snapshotfelder
+    @Column(name = "formular_id")
+    private Long formularId;
+
+    @Column(name = "formular_version")
+    private Integer formularVersion;
+
+    @Type(JsonType.class)
+    @Column(name = "formular_snapshot", columnDefinition = "jsonb")
+    private JsonNode formularSnapshot;
+
+    @Type(JsonType.class)
+    @Column(name = "formular_antworten", columnDefinition = "jsonb")
+    private JsonNode formularAntworten;
 
     @PrePersist
     protected void onCreate() {
