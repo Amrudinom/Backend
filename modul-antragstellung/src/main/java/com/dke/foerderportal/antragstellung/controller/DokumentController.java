@@ -1,5 +1,6 @@
 package com.dke.foerderportal.antragstellung.controller;
 
+import com.dke.foerderportal.shared.dto.DokumentDto;
 import com.dke.foerderportal.shared.model.Dokument;
 import com.dke.foerderportal.shared.model.User;
 import com.dke.foerderportal.shared.service.DokumentService;
@@ -33,9 +34,8 @@ public class DokumentController {
      * GET /api/foerderantraege/1/dokumente
      */
     @GetMapping
-    public ResponseEntity<List<Dokument>> getDokumente(@PathVariable Long antragId) {
-        List<Dokument> dokumente = dokumentService.getDokumenteByAntragId(antragId);
-        return ResponseEntity.ok(dokumente);
+    public ResponseEntity<List<DokumentDto>> getDokumente(@PathVariable Long antragId) {
+        return ResponseEntity.ok(dokumentService.getDokumenteByAntragId(antragId).stream().map(d -> new DokumentDto(d.getId(), d.getFilename(), d.getContentType(), d.getFileSize(), d.getUploadedAt().toString(), d.getUploadedBy().getId())).toList());
     }
 
     /**
@@ -44,7 +44,7 @@ public class DokumentController {
      * Content-Type: multipart/form-data
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Dokument> uploadDokument(
+    public ResponseEntity<DokumentDto> uploadDokument(
             @PathVariable Long antragId,
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal Jwt jwt
@@ -54,13 +54,18 @@ public class DokumentController {
             User uploader = userService.getUserByAuth0Id(auth0Id)
                     .orElseThrow(() -> new RuntimeException("User nicht gefunden"));
 
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
+            if (file.isEmpty()) return ResponseEntity.badRequest().build();
 
-            Dokument dokument = dokumentService.uploadDokument(antragId, file, uploader);
-            return ResponseEntity.ok(dokument);
+            Dokument d = dokumentService.uploadDokument(antragId, file, uploader);
 
+            return ResponseEntity.ok(new DokumentDto(
+                    d.getId(),
+                    d.getFilename(),
+                    d.getContentType(),
+                    d.getFileSize(),
+                    d.getUploadedAt() != null ? d.getUploadedAt().toString() : null,
+                    uploader.getId()
+            ));
         } catch (IOException e) {
             return ResponseEntity.internalServerError().build();
         }

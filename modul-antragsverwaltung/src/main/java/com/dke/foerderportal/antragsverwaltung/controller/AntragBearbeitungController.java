@@ -1,6 +1,12 @@
 package com.dke.foerderportal.antragsverwaltung.controller;
 
 
+<<<<<<< Updated upstream
+=======
+import com.dke.foerderportal.antragsverwaltung.dto.FoerderantragListDto;
+import com.dke.foerderportal.antragsverwaltung.dto.UpdateStatusRequest;
+import com.dke.foerderportal.shared.dto.AntragFormularViewDto;
+>>>>>>> Stashed changes
 import com.dke.foerderportal.shared.dto.CreateAntragRequest;
 import com.dke.foerderportal.shared.model.AntragStatus;
 import com.dke.foerderportal.shared.model.Foerderantrag;
@@ -83,10 +89,34 @@ public class AntragBearbeitungController {
             @RequestParam(required = false) AntragStatus status,
             @RequestParam(required = false) Long userId,
             @RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME) LocalDate from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME)LocalDate to
-            ){
+            @RequestParam(required = false) @DateTimeFormat(iso = DATE_TIME) LocalDate to
+    ) {
         List<CreateAntragRequest> result = foerderantragService.filterAntraege(status, userId, from, to);
         return ResponseEntity.ok(result);
     }
+<<<<<<< Updated upstream
+=======
+
+    @GetMapping("/{id}/formular")
+    public ResponseEntity<AntragFormularViewDto> getFormular(@PathVariable Long id) {
+        return ResponseEntity.ok(antragFormularViewService.getFormularView(id));
+    }
+
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<Foerderantrag> updateStatus(
+            @PathVariable Long id,
+            @RequestBody UpdateStatusRequest body,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String auth0Id = jwt.getSubject();
+        User bearbeiter = userService.getUserByAuth0Id(auth0Id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Foerderantrag antrag = foerderantragService.updateStatus(id, body.status(), bearbeiter, body.grund());
+        return ResponseEntity.ok(antrag);
+    }
+
+>>>>>>> Stashed changes
 
 }
