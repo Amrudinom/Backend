@@ -66,4 +66,15 @@ public class DokumenteVerwaltungController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @DeleteMapping("/{dokumentId}/delete")
+    public ResponseEntity<Void> deleteDokument(
+            @PathVariable Long antragId,
+            @PathVariable Long dokumentId,
+            @AuthenticationPrincipal Jwt jwt
+    ) throws IOException {
+        dokumentService.deleteDokument(dokumentId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
