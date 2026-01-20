@@ -80,4 +80,16 @@ public class EmailService {
         );
         sendEmail(to, subject, body);
     }
+    public void sendAntragInBearbeitungEmail(String to, String antragTitel) {
+        String subject = "Förderantrag in Bearbeitung";
+        String body = String.format(
+                "Hallo,\n\n" +
+                        "Ihr Förderantrag '%s' wird nun bearbeitet.\n\n" +
+                        "Mit freundlichen Grüßen,\n" +
+                        "Ihr Förderportal-Team",
+                antragTitel
+        );
+        sendEmail(to, subject, body);
+    }
+
 }

@@ -1,10 +1,14 @@
 package com.dke.foerderportal.shared.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -55,6 +59,20 @@ public class Foerderantrag {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    @Column(name = "formular_id")
+    private Long formularId;
+
+    @Column(name = "formular_version")
+    private Integer formularVersion;
+
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "formular_snapshot", columnDefinition = "jsonb")
+    private JsonNode formularSnapshot;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "formular_antworten", columnDefinition = "jsonb")
+    private JsonNode formularAntworten;
 
     @PrePersist
     protected void onCreate() {

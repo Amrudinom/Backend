@@ -1,10 +1,11 @@
 package com.dke.foerderportal.antragstellung.controller;
 
 
+import com.dke.foerderportal.shared.dto.FoerderantragDetailDto;
+import com.dke.foerderportal.shared.dto.FoerderantragListDto;
 import com.dke.foerderportal.shared.model.Foerderantrag;
 import com.dke.foerderportal.shared.model.User;
 import com.dke.foerderportal.shared.service.FoerderantragService;
-import com.dke.foerderportal.shared.service.FormularService;
 import com.dke.foerderportal.shared.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +23,16 @@ public class FoerderantragController {
     private final UserService userService;
 
     @GetMapping("/my")
-    public ResponseEntity<List<Foerderantrag>> getMyAntraege(@AuthenticationPrincipal Jwt jwt) {
-
+    public ResponseEntity<List<FoerderantragListDto>> getMyAntraege(@AuthenticationPrincipal Jwt jwt) {
         String auth0Id = jwt.getSubject();
         User user = userService.getUserByAuth0Id(auth0Id)
                 .orElseThrow(() -> new RuntimeException("Testuser nicht gefunden"));
-        return ResponseEntity.ok(foerderantragService.getAntraegeByUser(user));
+        return ResponseEntity.ok(foerderantragService.getMyAntraegeDtos(user));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Foerderantrag> getAntragById(@PathVariable Long id) {
-        Foerderantrag antrag = foerderantragService.getAntragById(id);
-        return ResponseEntity.ok(antrag);
+    public ResponseEntity<FoerderantragDetailDto> getAntragById(@PathVariable Long id) {
+        return ResponseEntity.ok(foerderantragService.getAntragDetailDtoById(id));
     }
 
     @PostMapping

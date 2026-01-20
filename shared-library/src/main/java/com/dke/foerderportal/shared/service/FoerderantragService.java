@@ -1,6 +1,8 @@
 package com.dke.foerderportal.shared.service;
 
 import com.dke.foerderportal.shared.dto.CreateAntragRequest;
+import com.dke.foerderportal.shared.dto.FoerderantragDetailDto;
+import com.dke.foerderportal.shared.dto.FoerderantragListDto;
 import com.dke.foerderportal.shared.model.AntragStatus;
 import com.dke.foerderportal.shared.model.Foerderantrag;
 import com.dke.foerderportal.shared.model.User;
@@ -25,6 +27,16 @@ public class FoerderantragService {
     private final FoerderantragRepository foerderantragRepository;
     private final EmailService emailService;
     private final UserRepository userRepository;
+
+    public List<FoerderantragListDto> getMyAntraegeDtos(User user) {
+        return foerderantragRepository.findListDtosByUserId(user.getId());
+    }
+
+    public FoerderantragDetailDto getAntragDetailDtoById(Long id) {
+        FoerderantragDetailDto dto = foerderantragRepository.findDetailDtoById(id);
+        if (dto == null) throw new RuntimeException("Foerderantrag not found: " + id);
+        return dto;
+    }
 
     public List<Foerderantrag> getAllAntraege() {
         return foerderantragRepository.findAll();
@@ -73,45 +85,13 @@ public class FoerderantragService {
     }
 
     public Foerderantrag genehmigenAntrag(Long id, User bearbeiter) {
-        Foerderantrag antrag = getAntragById(id);
-
-        antrag.setStatus(AntragStatus.GENEHMIGT);
-        antrag.setBearbeiter(bearbeiter);
-        antrag.setBearbeitetAm(LocalDateTime.now());
-
-        Foerderantrag saved = foerderantragRepository.save(antrag);
-        log.info("Foerderantrag approved: {}", id);
-
-        // Send email notification
-        try {
-            emailService.sendAntragGenehmigtEmail(antrag.getAntragsteller().getEmail(), antrag.getTitel());
-        } catch (Exception e) {
-            log.error("Failed to send email notification", e);
-        }
-
-        return saved;
+        return updateStatus(id, AntragStatus.GENEHMIGT, bearbeiter, null);
     }
 
     public Foerderantrag ablehnenAntrag(Long id, User bearbeiter, String grund) {
-        Foerderantrag antrag = getAntragById(id);
-
-        antrag.setStatus(AntragStatus.ABGELEHNT);
-        antrag.setBearbeiter(bearbeiter);
-        antrag.setBearbeitetAm(LocalDateTime.now());
-        antrag.setAblehnungsgrund(grund);
-
-        Foerderantrag saved = foerderantragRepository.save(antrag);
-        log.info("Foerderantrag rejected: {}", id);
-
-        // Send email notification
-        try {
-            emailService.sendAntragAbgelehntEmail(antrag.getAntragsteller().getEmail(), antrag.getTitel(), grund);
-        } catch (Exception e) {
-            log.error("Failed to send email notification", e);
-        }
-
-        return saved;
+        return updateStatus(id, AntragStatus.ABGELEHNT, bearbeiter, grund);
     }
+
 
     public void deleteAntrag(Long id) {
         foerderantragRepository.deleteById(id);
@@ -143,5 +123,39 @@ public class FoerderantragService {
 
         return result.stream().map(a -> new CreateAntragRequest(a.getId(), a.getTitel(), a.getBeschreibung(), a.getBetrag(), a.getStatus(), a.getEingereichtAm(), a.getAntragsteller() != null ? a.getAntragsteller().getName() : null)).collect(Collectors.toList());
     }
+
+    public Foerderantrag updateStatus(Long id, AntragStatus newStatus, User bearbeiter, String grundOptional) {
+        Foerderantrag antrag = getAntragById(id);
+
+        antrag.setStatus(newStatus);
+        antrag.setBearbeiter(bearbeiter);
+        antrag.setBearbeitetAm(LocalDateTime.now());
+
+        if (newStatus == AntragStatus.ABGELEHNT) {
+            antrag.setAblehnungsgrund(grundOptional);
+        } else {
+            antrag.setAblehnungsgrund(null);
+        }
+
+        Foerderantrag saved = foerderantragRepository.save(antrag);
+
+        try {
+            String to = antrag.getAntragsteller().getEmail();
+            String titel = antrag.getTitel();
+
+            switch (newStatus) {
+                case IN_BEARBEITUNG -> emailService.sendAntragInBearbeitungEmail(to, titel);
+                case GENEHMIGT -> emailService.sendAntragGenehmigtEmail(to, titel);
+                case ABGELEHNT ->
+                        emailService.sendAntragAbgelehntEmail(to, titel, grundOptional != null ? grundOptional : "-");
+                default -> { /* keine Mail */ }
+            }
+        } catch (Exception e) {
+            log.error("Failed to send email notification", e);
+        }
+
+        return saved;
+    }
+
 
 }
