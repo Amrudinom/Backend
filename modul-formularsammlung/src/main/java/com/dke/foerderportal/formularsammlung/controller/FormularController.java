@@ -14,24 +14,24 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/formulare")
 @RequiredArgsConstructor
 public class FormularController {
-
     private final FormularService formularService;
     private final FoerderantragService foerderantragService;
     private final UserService userService;
     private final ObjectMapper objectMapper;
 
-    @GetMapping
+    @GetMapping  // Alle veröffentlichten Formulare anzeigen
     public List<Formular> alleFormulare() {
         return formularService.getVeroeffentlichteFormulare();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}")  // Ein Formular zum Ausfüllen öffnen
     public Formular formularDetail(@PathVariable Long id) {
         return formularService.getFormularById(id);
     }
@@ -56,6 +56,12 @@ public class FormularController {
         antrag.setTitel(request.getTitel());
         antrag.setBeschreibung(request.getBeschreibung());
         antrag.setBetrag(request.getBetrag());
+        antrag.setFormularId(request.getFormularId());
+
+        if (request.getAntworten() != null) {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            antrag.setFormularAntworten(mapper.valueToTree(request.getAntworten()));
+        }
 
         // ✅ Formular-Verknüpfung
         antrag.setFormularId(formular.getId());
@@ -68,6 +74,8 @@ public class FormularController {
         antrag.setFormularAntworten(objectMapper.valueToTree(request.getAntworten()));
 
         Foerderantrag created = foerderantragService.createAntrag(antrag, user.getId());
+
         return ResponseEntity.ok(created);
     }
+
 }

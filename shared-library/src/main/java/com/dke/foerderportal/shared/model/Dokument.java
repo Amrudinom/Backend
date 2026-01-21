@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // <-- DIESE ZEILE HINZUFÜGEN!
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Dokument {
 
     @Id
@@ -31,12 +31,12 @@ public class Dokument {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "foerderantrag_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // <-- AUCH HIER!
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Foerderantrag foerderantrag;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uploaded_by")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // <-- UND HIER!
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private User uploadedBy;
 
     @Column(name = "uploaded_at")

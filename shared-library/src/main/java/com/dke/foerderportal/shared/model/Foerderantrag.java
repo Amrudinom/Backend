@@ -3,7 +3,6 @@ package com.dke.foerderportal.shared.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -16,7 +15,6 @@ import java.time.LocalDateTime;
 @Table(name = "foerderantraege")
 @Data
 @NoArgsConstructor
-
 public class Foerderantrag {
 
     @Id
@@ -59,12 +57,12 @@ public class Foerderantrag {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
     @Column(name = "formular_id")
     private Long formularId;
 
     @Column(name = "formular_version")
     private Integer formularVersion;
-
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "formular_snapshot", columnDefinition = "jsonb")
