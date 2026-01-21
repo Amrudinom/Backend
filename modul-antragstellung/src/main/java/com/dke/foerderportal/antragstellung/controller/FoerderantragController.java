@@ -40,6 +40,12 @@ public class FoerderantragController {
             @RequestBody Foerderantrag antrag,
             @AuthenticationPrincipal Jwt jwt
     ) {
+
+        if (antrag.getFormularId() == null || antrag.getFormularSnapshot() == null || antrag.getFormularAntworten() == null) {
+            throw new IllegalArgumentException("Antrag muss formularId, formularSnapshot und formularAntworten enthalten. Bitte /api/formulare verwenden.");
+        }
+
+
         String auth0Id = jwt.getSubject();
         User user = userService.getUserByAuth0Id(auth0Id)
                 .orElseThrow(() -> new RuntimeException("User not found"));

@@ -7,12 +7,14 @@ import com.dke.foerderportal.shared.model.User;
 import com.dke.foerderportal.shared.service.FoerderantragService;
 import com.dke.foerderportal.shared.service.FormularService;
 import com.dke.foerderportal.shared.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -22,13 +24,14 @@ public class FormularController {
     private final FormularService formularService;
     private final FoerderantragService foerderantragService;
     private final UserService userService;
+    private final ObjectMapper objectMapper;
 
-    @GetMapping
+    @GetMapping  // Alle veröffentlichten Formulare anzeigen
     public List<Formular> alleFormulare() {
         return formularService.getVeroeffentlichteFormulare();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}")  // Ein Formular zum Ausfüllen öffnen
     public Formular formularDetail(@PathVariable Long id) {
         return formularService.getFormularById(id);
     }
@@ -60,7 +63,19 @@ public class FormularController {
             antrag.setFormularAntworten(mapper.valueToTree(request.getAntworten()));
         }
 
+        // ✅ Formular-Verknüpfung
+        antrag.setFormularId(formular.getId());
+        antrag.setFormularVersion(formular.getVersion());
+
+        // ✅ Snapshot: ganzes Formular einfrieren (damit formularSnapshot.felder etc. im FE existiert)
+        antrag.setFormularSnapshot(objectMapper.valueToTree(formular));
+
+        // ✅ Antworten als JsonNode speichern
+        antrag.setFormularAntworten(objectMapper.valueToTree(request.getAntworten()));
+
         Foerderantrag created = foerderantragService.createAntrag(antrag, user.getId());
+
         return ResponseEntity.ok(created);
     }
+
 }

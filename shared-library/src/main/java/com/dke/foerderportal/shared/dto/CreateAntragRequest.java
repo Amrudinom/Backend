@@ -1,6 +1,7 @@
 package com.dke.foerderportal.shared.dto;
 
 import com.dke.foerderportal.shared.model.AntragStatus;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
