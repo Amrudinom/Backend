@@ -1,9 +1,15 @@
 package com.dke.foerderportal.shared.service;
 
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import com.sendgrid.Method;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,21 +17,35 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class EmailService {
 
-    private final JavaMailSender mailSender;
+    private final SendGrid sendGrid;
+
+    @Value("${mail.from}")
+    private String from;
 
     public void sendEmail(String to, String subject, String body) {
         try {
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("noreply@foerderportal.com");
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(body);
+            Mail mail = new Mail(
+                    new Email(from),
+                    subject,
+                    new Email(to),
+                    new Content("text/plain", body)
+            );
 
-            mailSender.send(message);
-            log.info("Email sent successfully to: {}", to);
+            Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            Response response = sendGrid.api(request);
+
+            int status = response.getStatusCode();
+            if (status >= 200 && status < 300) {
+                log.info("SendGrid: Email sent successfully to: {}", to);
+            } else {
+                log.warn("SendGrid: status={} body={}", status, response.getBody());
+            }
         } catch (Exception e) {
-            log.error("Failed to send email to: {}", to, e);
-            // Don't throw exception - email failure shouldn't break the application
+            log.error("SendGrid: Failed to send email to: {}", to, e);
         }
     }
 
@@ -80,6 +100,7 @@ public class EmailService {
         );
         sendEmail(to, subject, body);
     }
+
     public void sendAntragInBearbeitungEmail(String to, String antragTitel) {
         String subject = "Förderantrag in Bearbeitung";
         String body = String.format(
@@ -91,5 +112,4 @@ public class EmailService {
         );
         sendEmail(to, subject, body);
     }
-
 }
