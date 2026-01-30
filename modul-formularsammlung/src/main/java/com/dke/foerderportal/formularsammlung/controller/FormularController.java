@@ -63,14 +63,14 @@ public class FormularController {
             antrag.setFormularAntworten(mapper.valueToTree(request.getAntworten()));
         }
 
-        // ✅ Formular-Verknüpfung
+        // Formular-Verknüpfung
         antrag.setFormularId(formular.getId());
         antrag.setFormularVersion(formular.getVersion());
 
-        // ✅ Snapshot: ganzes Formular einfrieren (damit formularSnapshot.felder etc. im FE existiert)
+        // Snapshot: ganzes Formular einfrieren (damit formularSnapshot.felder etc. im FE existiert)
         antrag.setFormularSnapshot(objectMapper.valueToTree(formular));
 
-        // ✅ Antworten als JsonNode speichern
+        //  Antworten als JsonNode speichern
         antrag.setFormularAntworten(objectMapper.valueToTree(request.getAntworten()));
 
         Foerderantrag created = foerderantragService.createAntrag(antrag, user.getId());
